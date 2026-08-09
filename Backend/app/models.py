@@ -20,7 +20,7 @@ class InquiryType(enum.Enum):
     BESPOKE_DRESS = "bespoke_dress"
     # Removed CUSTOM_WIG
 
-# --- Models ---
+# --- Models --
 
 class Users(Base):
     """Strictly for Website Administrators."""

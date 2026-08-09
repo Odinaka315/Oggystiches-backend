@@ -69,7 +69,7 @@ class ProductCreate(BaseModel):
     title: str
     description: str
     price: float
-    category: models.ProductCategory
+    category: models.ProductCategory = models.ProductCategory.READY_TO_WEAR
     is_featured: bool = False
     is_bespoke: bool = False
     is_active: bool = True
@@ -94,3 +94,23 @@ class ProductOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserOut(BaseModel):
+    id: int
+    email: EmailStr
+    last_name: str
+    first_name: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+class DashboardMetricsOut(BaseModel):
+    totalProducts: int
+    featuredProducts: int
+    unreadInquiries: int
+
+# 1. Pydantic schema matching the React interface
+class DashboardMetricsOut(BaseModel):
+    totalProducts: int
+    featuredProducts: int
+    unreadInquiries: int

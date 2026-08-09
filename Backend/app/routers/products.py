@@ -134,14 +134,16 @@ def create_product(
     title: str = Form(...),
     description: str = Form(...),
     price: float = Form(...),
-    category: str = Form(...),
+    
+    # 1. FIX: Change 'str' to 'models.ProductCategory'
+    category: models.ProductCategory = Form(...), 
+    
     is_featured: bool = Form(False),
     is_bespoke: bool = Form(False),
     is_active: bool = Form(True),
     files: List[UploadFile] = File(...),
     db: Session = Depends(get_db),
     current_user: models.Users = Depends(oauth2.get_current_user)
-
 ):
     # 1. Validate the file limits
     validate_files(files)
@@ -151,7 +153,10 @@ def create_product(
         title=title,
         description=description,
         price=price,
-        category=category,
+        
+        # 'category' is now a valid Enum object, which SQLAlchemy understands
+        category=category, 
+        
         is_featured=is_featured,
         is_bespoke=is_bespoke,
         is_active=is_active
@@ -172,7 +177,7 @@ def create_product(
         new_image = models.ProductImage(
             product_id=new_product.id,
             image_url=upload_result.get("secure_url"),
-            public_id=upload_result.get("public_id"),  # <-- Saved Cloudinary public_id
+            public_id=upload_result.get("public_id"), 
             alt_text=f"{title} - {'video' if is_video else 'image'} {index + 1}",
             is_primary=(index == 0),
             is_video_snippet=is_video
@@ -197,7 +202,7 @@ def modify_product(
     title: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
-    category: Optional[str] = Form(None),
+    category: models.ProductCategory = Form(...), 
     is_featured: Optional[bool] = Form(None),
     is_bespoke: Optional[bool] = Form(None),
     is_active: Optional[bool] = Form(None),

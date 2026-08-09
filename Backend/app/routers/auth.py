@@ -35,7 +35,7 @@ def login(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True, # Ensure this is True in production with HTTPS
+        secure=False, # Ensure this is True in production with HTTPS
         samesite="lax",
         max_age=7 * 24 * 60 * 60 # 7 days in seconds
     )

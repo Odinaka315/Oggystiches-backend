@@ -6,7 +6,7 @@ from sqlalchemy import func
 from pydantic import BaseModel, EmailStr
 from ..database import get_db
 from .. import models, schemas, oauth2
-from ..tasks import send_contact_email
+from ..tasks import send_contact_email, send_admin_email
 
 router = APIRouter(
     prefix="/api/v1/contact-messages", 
@@ -77,6 +77,31 @@ def create_contact_message(
 
     # 2. Trigger the Celery background task by passing just the ID
     # send_contact_email.delay(new_message.id)
+    send_admin_email.delay(new_message.id)
 
     # 3. Return the newly created database record
     return new_message
+
+@router.patch("/{id}/read", response_model=schemas.ContactMessageOut)
+def mark_message_as_read(
+    id: int,
+    db: Session = Depends(get_db),
+    current_user: models.Users = Depends(oauth2.get_current_user)
+):
+    """
+    Mark a specific contact message as read.
+    """
+    message_query = db.query(models.ContactMessage).filter(models.ContactMessage.id == id)
+    message = message_query.first()
+
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail=f"Contact message with id {id} not found"
+        )
+
+    # Update the is_read status
+    message_query.update({"is_read": True}, synchronize_session=False)
+    db.commit()
+
+    return message_query.first()

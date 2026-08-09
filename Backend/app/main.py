@@ -6,13 +6,17 @@ from .config import setup_cloudinary
 setup_cloudinary()
 app = FastAPI(title="TixODI backend API")
 
-from .routers import auth, contacts, products
+from .routers import auth, contacts, products, users, admin
 app.include_router(auth.router)
 app.include_router(contacts.router)
 app.include_router(products.router)
-# app.include_router(users.router)
+app.include_router(users.router)
+app.include_router(admin.router)
 
-origins = ["*"]
+origins = [
+    "http://localhost:5173", # Explicitly add your frontend URL
+    # "https://your-production-domain.com" 
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
