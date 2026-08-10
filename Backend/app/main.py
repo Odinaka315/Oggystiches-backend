@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .celery_worker import celery_app
+# from .celery_worker import celery_app
 from .config import setup_cloudinary
 
 setup_cloudinary()

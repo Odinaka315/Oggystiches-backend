@@ -5,7 +5,7 @@ from celery.utils.log import get_task_logger
 
 from sqlalchemy.orm import Session, joinedload
 from .database import SessionLocal
-from .celery_worker import celery_app
+# from .celery_worker import celery_app
 from . import models
 from .config import setup_cloudinary, settings
 
