@@ -14,7 +14,7 @@ app.include_router(users.router)
 app.include_router(admin.router)
 
 origins = [
-    "http://localhost:5173", # Explicitly add your frontend URL
+    "https://oggystiches.vercel.app", # Explicitly add your frontend URL
     # "https://your-production-domain.com" 
 ]
 app.add_middleware(

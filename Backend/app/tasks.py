@@ -12,7 +12,7 @@ from .config import setup_cloudinary, settings
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 
-frontend_link = "http://localhost:5173"
+frontend_link = "https://oggystiches.vercel.app/"
 BREVO_API_KEY = settings.brevo_api_key
 brevo_config = sib_api_v3_sdk.Configuration()
 brevo_config.api_key['api-key'] = BREVO_API_KEY
