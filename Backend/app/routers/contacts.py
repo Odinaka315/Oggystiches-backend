@@ -1,12 +1,12 @@
 from datetime import date, datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel, EmailStr
 from ..database import get_db
 from .. import models, schemas, oauth2
-from ..tasks import send_contact_email, send_admin_email
+from ..tasks import  send_admin_email
 
 router = APIRouter(
     prefix="/api/v1/contact-messages", 
@@ -57,12 +57,13 @@ def get_contact_messages(
 @router.post("/", response_model=schemas.ContactMessageOut, status_code=status.HTTP_201_CREATED)
 def create_contact_message(
     message_in: schemas.ContactMessageCreate,
+    background_tasks: BackgroundTasks, # 2. Inject it into the endpoint
     db: Session = Depends(get_db)
 ):
     """
-    Creates a new contact message in the database and triggers an email via Celery.
+    Creates a new contact message and triggers an email natively via FastAPI.
     """
-    # 1. Save the record to the database
+    # Save the record to the database
     new_message = models.ContactMessage(
         first_name=message_in.first_name,
         last_name=message_in.last_name,
@@ -75,11 +76,10 @@ def create_contact_message(
     db.commit()
     db.refresh(new_message)
 
-    # 2. Trigger the Celery background task by passing just the ID
-    # send_contact_email.delay(new_message.id)
-    send_admin_email.delay(new_message.id)
+    # 3. Trigger the email task natively! 
+    # (Just make sure your send_admin_email function no longer has the @shared_task decorator)
+    background_tasks.add_task(send_admin_email, new_message.id)
 
-    # 3. Return the newly created database record
     return new_message
 
 @router.patch("/{id}/read", response_model=schemas.ContactMessageOut)

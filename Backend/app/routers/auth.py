@@ -6,7 +6,7 @@ from ..database import get_db
 import secrets
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from ..tasks import  send_password_reset_email
+# from ..tasks import  send_password_reset_email
 from ..config import settings
 router = APIRouter(
     prefix="/api/v1/auth",
@@ -67,27 +67,27 @@ def refresh_token(
 
     return {"access_token": new_access_token, "token_type": "bearer"}
 
-@router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
-def request_password_reset(
-    payload: schemas.ForgotPasswordRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Accepts an email address and triggers a password reset email if the account exists.
-    Always returns a generic success message to prevent email enumeration attacks.
-    """
-    user = db.query(models.Users).filter(models.Users.email == payload.email).first()
+# @router.post("/forgot-password", status_code=status.HTTP_202_ACCEPTED)
+# def request_password_reset(
+#     payload: schemas.ForgotPasswordRequest,
+#     db: Session = Depends(get_db)
+# ):
+#     """
+#     Accepts an email address and triggers a password reset email if the account exists.
+#     Always returns a generic success message to prevent email enumeration attacks.
+#     """
+#     user = db.query(models.Users).filter(models.Users.email == payload.email).first()
 
-    # If user exists, generate the 15-minute token and fire the Celery task!
-    if user:
-        token = oauth2.create_password_reset_token(user.id)
-        send_password_reset_email.delay(user.id, token)
+#     # If user exists, generate the 15-minute token and fire the Celery task!
+#     if user:
+#         token = oauth2.create_password_reset_token(user.id)
+#         send_password_reset_email.delay(user.id, token)
 
-    # ANTI-ENUMERATION: Always return this exact message regardless of whether user exists!
-    return {
-        "status": "success",
-        "message": "✉️ If an account with that email exists, a password reset link has been sent to your inbox."
-    }
+#     # ANTI-ENUMERATION: Always return this exact message regardless of whether user exists!
+#     return {
+#         "status": "success",
+#         "message": "✉️ If an account with that email exists, a password reset link has been sent to your inbox."
+#     }
 
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
