@@ -90,38 +90,38 @@ def refresh_token(
 #     }
 
 
-@router.post("/reset-password", status_code=status.HTTP_200_OK)
-def execute_password_reset(
-    payload: schemas.ResetPasswordRequest,
-    db: Session = Depends(get_db)
-):
-    """
-    Validates the 15-minute reset token and hashes/saves the new password.
-    """
-    # 1. Decode and validate the token
-    user_id = oauth2.verify_password_reset_token(payload.token)
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="❌ The password reset link is invalid or has expired (links expire after 15 minutes)."
-        )
+# @router.post("/reset-password", status_code=status.HTTP_200_OK)
+# def execute_password_reset(
+#     payload: schemas.ResetPasswordRequest,
+#     db: Session = Depends(get_db)
+# ):
+#     """
+#     Validates the 15-minute reset token and hashes/saves the new password.
+#     """
+#     # 1. Decode and validate the token
+#     user_id = oauth2.verify_password_reset_token(payload.token)
+#     if not user_id:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="❌ The password reset link is invalid or has expired (links expire after 15 minutes)."
+#         )
 
-    # 2. Fetch the target user
-    user = db.query(models.Users).filter(models.Users.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+#     # 2. Fetch the target user
+#     user = db.query(models.Users).filter(models.Users.id == user_id).first()
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-    # 3. Hash the new password and overwrite the old one
-    hashed_new_password = utils.hash(payload.new_password)
-    user.password = hashed_new_password
+#     # 3. Hash the new password and overwrite the old one
+#     hashed_new_password = utils.hash(payload.new_password)
+#     user.password = hashed_new_password
 
-    # 4. Save changes to database
-    db.commit()
+#     # 4. Save changes to database
+#     db.commit()
 
-    return {
-        "status": "success",
-        "message": "✅ Your password has been successfully reset! You can now log in with your new credentials."
-    }
+#     return {
+#         "status": "success",
+#         "message": "✅ Your password has been successfully reset! You can now log in with your new credentials."
+#     }
 
 @router.patch("/me/change-password", status_code=status.HTTP_200_OK)
 def change_user_password(
@@ -151,7 +151,6 @@ def change_user_password(
     current_user.password = utils.hash(payload.new_password)
     db.commit()
 
-    # PRO-TIP: Send a security alert email via Celery here!
-    # "Hi Odinaka, your Ticketing Platform password was just changed. If this wasn't you, click here immediately!"
+
 
     return {"status": "success", "message": "✅ Password updated successfully!"}
